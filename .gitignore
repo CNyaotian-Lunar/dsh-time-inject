@@ -1,0 +1,8 @@
+node_modules/
+out/
+*.log
+
+# ── 内部文档：不上公网（发布流程见工作区 PLAYBOOK §对外发布流程）──
+HANDOVER.md
+REVIEW.md
+notes/
