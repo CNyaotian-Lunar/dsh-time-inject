@@ -161,6 +161,10 @@ node tools/uninstall.mjs --apply                       # roll back: remove the J
 node tools/uninstall.mjs --apply --backup <backup dir>  # roll back: remove the Junction + restore the patch from that backup
 ```
 
+> ℹ️ **分发范围 / Distribution:** 上面的 `tools/`（以及 `test/`、`docs/`）**不在 npm 包的分发清单**里 —— `package.json` 的 `files` 只列 `lib` + `cordis.patch.yml` + `README.md`，运行时代码全部在 `lib/`。要用这两支脚本，请**直接从 GitHub 仓库取**（`git clone` 或网页下载对应文件）。
+>
+> **English:** The `tools/` directory above (along with `test/` and `docs/`) is **not part of the npm package**: the `files` field lists only `lib` + `cordis.patch.yml` + `README.md`, and all runtime code lives in `lib/`. To use these two scripts, **take them straight from the GitHub repository** (`git clone`, or download the files from the web).
+
 ## 配置项 / Configuration
 
 | 字段 | 类型 | 默认 | 说明 |

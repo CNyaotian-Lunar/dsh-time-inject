@@ -6,9 +6,6 @@
   "main": "lib/index.mjs",
   "files": [
     "lib",
-    "test",
-    "docs",
-    "tools",
     "cordis.patch.yml",
     "README.md"
   ],
