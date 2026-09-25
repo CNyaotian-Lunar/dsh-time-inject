@@ -1,0 +1,56 @@
+{
+  "name": "dsh-time-inject",
+  "version": "0.1.0",
+  "description": "中文时间注入（time inject）：每个 turn 的第一个 step 往模型上下文追加一条单行中文时间读数，让 agent 永远知道现在几点。",
+  "type": "module",
+  "main": "lib/index.mjs",
+  "files": [
+    "lib",
+    "test",
+    "docs",
+    "tools",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "exports": {
+    ".": "./lib/index.mjs",
+    "./text": "./lib/text.mjs",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "compatibility": {
+      "dshReleases": {
+        "0.1.7-rc.2": "compatible"
+      }
+    }
+  },
+  "scripts": {
+    "test": "node test/selftest.mjs",
+    "test:harness": "node test/harness.mjs"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "cordis",
+    "time",
+    "clock",
+    "timezone",
+    "context"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CNyaotian-Lunar/dsh-time-inject.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "schemastery": "*"
+  }
+}

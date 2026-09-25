@@ -1,0 +1,11 @@
+# dsh-time-inject · bundle patch：把「中文时间注入」插件行注入 profile 的 loader 树。
+#
+# 只挂 Node half（lib/index.mjs）：监听 `agent/pre-step` 一个 waterfall（prepend: true）+
+# 一个自己的 `sessionProjections` 投影（key = timeInject）。
+# 没有 client half、没有构建步骤、不提供 invariant companion。
+#
+# ⚠️ `name` 是**模块说明符**（= 本包名 `dsh-time-inject`）。
+# ⚠️ 这里是**顶层 YAML 数组**，每项必须是 mapping（写错宿主会直接 throw）。
+- insert:
+    - id: time-inject
+      name: 'dsh-time-inject'

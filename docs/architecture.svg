@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="880" viewBox="0 0 1240 880" font-family="'Microsoft YaHei','PingFang SC','Segoe UI',system-ui,sans-serif">
+  <defs>
+    <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#58a6ff"/>
+    </marker>
+    <marker id="arwg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b949e"/>
+    </marker>
+  </defs>
+
+  <rect width="1240" height="880" fill="#0d1117"/>
+
+  <!-- 标题区 -->
+  <text x="40" y="54" fill="#e6edf3" font-size="28" font-weight="700">dsh-time-inject · 架构</text>
+  <text x="40" y="84" fill="#8b949e" font-size="14">每个 turn 的第一个 step，往模型上下文追加一条中文时间读数（DSH host 插件 · 零构建 · 只依赖 schemastery）</text>
+  <text x="40" y="112" fill="#58a6ff" font-size="13" font-family="Consolas,Menlo,monospace">[时钟] 2026-09-25 21:34:07 +08:00 周五 · 距上条消息 8 分 12 秒</text>
+
+  <!-- 列标题 -->
+  <text x="40" y="148" fill="#8b949e" font-size="13" font-weight="600">触发</text>
+  <text x="420" y="148" fill="#8b949e" font-size="13" font-weight="600">插件处理 · agent/pre-step waterfall</text>
+  <text x="870" y="148" fill="#8b949e" font-size="13" font-weight="600">产出</text>
+
+  <!-- ── 左列：触发 ── -->
+  <rect x="40" y="166" width="330" height="58" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="58" y="192" fill="#e6edf3" font-size="14" font-weight="600">用户发来消息</text>
+  <text x="58" y="212" fill="#8b949e" font-size="12">唤醒 agent，开一个新 turn</text>
+
+  <line x1="205" y1="224" x2="205" y2="250" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arwg)"/>
+
+  <rect x="40" y="254" width="330" height="58" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="58" y="280" fill="#e6edf3" font-size="14" font-weight="600">进入 step 1</text>
+  <text x="58" y="300" fill="#8b949e" font-size="12">payload.step 从 1 起，每轮只出现一次</text>
+
+  <line x1="205" y1="312" x2="205" y2="338" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arwg)"/>
+
+  <rect x="40" y="342" width="330" height="58" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="58" y="368" fill="#e6edf3" font-size="14" font-weight="600">之后每一步都放行</text>
+  <text x="58" y="388" fill="#8b949e" font-size="12">本插件不参与 step 2..N</text>
+
+  <!-- 左 → 中 -->
+  <line x1="370" y1="195" x2="412" y2="195" stroke="#58a6ff" stroke-width="2" marker-end="url(#arw)"/>
+
+  <!-- ── 中列：处理（链式） ── -->
+  <rect x="420" y="166" width="400" height="58" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="438" y="192" fill="#e6edf3" font-size="14" font-weight="600">① agent/pre-step</text>
+  <text x="438" y="212" fill="#8b949e" font-size="12">waterfall · prepend: true（排到最外层）</text>
+
+  <line x1="620" y1="224" x2="620" y2="250" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arwg)"/>
+
+  <rect x="420" y="254" width="400" height="58" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="438" y="280" fill="#e6edf3" font-size="14" font-weight="600">② await next()</text>
+  <text x="438" y="300" fill="#8b949e" font-size="12">先让宿主与下游把决策做完，再动 messages</text>
+
+  <line x1="620" y1="312" x2="620" y2="338" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arwg)"/>
+
+  <rect x="420" y="342" width="400" height="58" rx="8" fill="#161b22" stroke="#f85149"/>
+  <text x="438" y="368" fill="#f85149" font-size="14" font-weight="600">③ 守卫（任一命中即原样放行）</text>
+  <text x="438" y="388" fill="#8b949e" font-size="12">reject · aborted · messages.length===0 · step≠1</text>
+
+  <line x1="620" y1="400" x2="620" y2="426" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arwg)"/>
+
+  <rect x="420" y="430" width="400" height="58" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="438" y="456" fill="#e6edf3" font-size="14" font-weight="600">④ 读自己的折叠状态</text>
+  <text x="438" y="476" fill="#8b949e" font-size="12">sessionProjections.stateOf(session,'timeInject')</text>
+
+  <line x1="620" y1="488" x2="620" y2="514" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arwg)"/>
+
+  <rect x="420" y="518" width="400" height="58" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="438" y="544" fill="#e6edf3" font-size="14" font-weight="600">⑤ 渲染单行中文</text>
+  <text x="438" y="564" fill="#8b949e" font-size="12">lib/text.mjs · formatClockLine()（纯函数）</text>
+
+  <line x1="620" y1="576" x2="620" y2="602" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arwg)"/>
+
+  <rect x="420" y="606" width="400" height="58" rx="8" fill="#161b22" stroke="#58a6ff"/>
+  <text x="438" y="632" fill="#e6edf3" font-size="14" font-weight="600">⑥ 追加一条 user 消息</text>
+  <text x="438" y="652" fill="#8b949e" font-size="12">source.kind='time-inject' · form='snapshot'</text>
+
+  <!-- 中 → 右 -->
+  <line x1="820" y1="195" x2="862" y2="195" stroke="#58a6ff" stroke-width="2" marker-end="url(#arw)"/>
+
+  <!-- ── 右列：产出 ── -->
+  <rect x="870" y="166" width="330" height="58" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="888" y="192" fill="#e6edf3" font-size="14" font-weight="600">模型上下文多一行</text>
+  <text x="888" y="212" fill="#8b949e" font-size="12">时间 / 星期 / 时区 / 距上条消息</text>
+
+  <line x1="1035" y1="224" x2="1035" y2="250" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arwg)"/>
+
+  <rect x="870" y="254" width="330" height="58" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="888" y="280" fill="#e6edf3" font-size="14" font-weight="600">会话日志留痕</text>
+  <text x="888" y="300" fill="#8b949e" font-size="12">可被 scan-session.mjs 按 source.kind 统计</text>
+
+  <line x1="1035" y1="312" x2="1035" y2="338" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arwg)"/>
+
+  <rect x="870" y="342" width="330" height="58" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="888" y="368" fill="#e6edf3" font-size="14" font-weight="600">折叠状态推进</text>
+  <text x="888" y="388" fill="#8b949e" font-size="12">lastMessageTime / lastInjectionTime / injections</text>
+
+  <line x1="1035" y1="400" x2="1035" y2="426" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arwg)"/>
+
+  <rect x="870" y="430" width="330" height="58" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="888" y="456" fill="#e6edf3" font-size="14" font-weight="600">下一轮读它算「距上条消息」</text>
+  <text x="888" y="476" fill="#8b949e" font-size="12">跨重启由投影持久化，不靠内存</text>
+
+  <!-- ── 底部：为什么这么设计 ── -->
+  <rect x="40" y="700" width="1160" height="148" rx="10" fill="#161b22" stroke="#30363d"/>
+  <text x="60" y="730" fill="#58a6ff" font-size="14" font-weight="600">为什么这么设计</text>
+  <text x="60" y="758" fill="#e6edf3" font-size="13">空轮保护：往 messages 塞消息会把「本该结束的轮次」撑成真步骤，白烧一次模型请求（dsh-agent-loop:963）</text>
+  <text x="60" y="784" fill="#8b949e" font-size="13">自有 source.kind = 'time-inject'：不复用官方 'time-context'，归因清晰、也不撞官方 invariant</text>
+  <text x="60" y="810" fill="#8b949e" font-size="13">每轮只注入一次：一轮约 40 token，不随 step 数膨胀；时区固定 Asia/Shanghai</text>
+  <text x="60" y="836" fill="#8b949e" font-size="13">自写 stateSchema 适配器：宿主 restore() 无 try/catch 直接调 .parse，而 schemastery 的 schema 没有 .parse</text>
+</svg>
