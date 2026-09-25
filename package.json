@@ -7,6 +7,8 @@
   "files": [
     "lib",
     "test",
+    "docs",
+    "tools",
     "cordis.patch.yml",
     "README.md"
   ],
@@ -19,14 +21,16 @@
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "compatibility": {
+      "dshReleases": {
+        "0.1.7-rc.2": "compatible"
+      }
     }
   },
   "scripts": {
     "test": "node test/selftest.mjs",
     "test:harness": "node test/harness.mjs"
-  },
-  "dependencies": {
-    "schemastery": "^3.18.0"
   },
   "keywords": [
     "deepseek-harness",
@@ -38,5 +42,15 @@
     "timezone",
     "context"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CNyaotian-Lunar/dsh-time-inject.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "peerDependencies": {
+    "schemastery": "*"
+  }
 }

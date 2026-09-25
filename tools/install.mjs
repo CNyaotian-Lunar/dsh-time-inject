@@ -38,7 +38,7 @@ const BACKUP_DIR = join(BACKUPS_ROOT, `dsh-time-inject-install-${STAMP}`)
 const say = (msg) => console.log(msg)
 const fail = (msg) => { console.error(`[FAIL] ${msg}`); process.exit(1) }
 
-// ── 铁律④：覆盖 / 删除类操作前，先就地断言目标 ─────────────────────────
+// ── 安全约束：覆盖 / 删除类操作前，先就地断言目标 ────────────────────────
 function assertUnder(child, parent, label) {
   const c = resolve(child)
   const p = resolve(parent)

@@ -54,7 +54,7 @@
   <line x1="620" y1="312" x2="620" y2="338" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arwg)"/>
 
   <rect x="420" y="342" width="400" height="58" rx="8" fill="#161b22" stroke="#f85149"/>
-  <text x="438" y="368" fill="#f85149" font-size="14" font-weight="600">③ 四道守卫（任一命中即原样放行）</text>
+  <text x="438" y="368" fill="#f85149" font-size="14" font-weight="600">③ 守卫（任一命中即原样放行）</text>
   <text x="438" y="388" fill="#8b949e" font-size="12">reject · aborted · messages.length===0 · step≠1</text>
 
   <line x1="620" y1="400" x2="620" y2="426" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arwg)"/>

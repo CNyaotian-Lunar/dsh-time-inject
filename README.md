@@ -134,6 +134,33 @@ sessionProjections 折叠（key = timeInject, stateVersion = 1）
 >
 > ⚠️ **English:** Don't try to swap the official line for ours via the patch `name` field: `name` is an **assertion**, not a rename — on a mismatch the whole entry does `warn + skip` (a silent no-op). The official line `id: time-context` is already `disabled: true`, so leave it off and add a separate `insert`.
 
+### 自带的安装 / 回滚脚本（默认干跑）/ Bundled Install & Rollback Scripts (dry-run by default)
+
+`tools/install.mjs` 自动做上面的路线 A，四步全部可回滚：
+**① 先备份 profile 的 `cordis.patch.yml`** → ② 把源码铺到 `vendor/` → ③ 在 profile 的 `node_modules/` 建 Junction → ④ 在 patch 末尾追加一行 `insert`。
+`tools/uninstall.mjs` 负责回滚：只删 Junction（源码与备份保留）；加 `--backup <备份目录>` 才额外从备份还原 `cordis.patch.yml`。
+两个脚本**默认都是干跑**，只有加 `--apply` 才真的动手。
+
+```powershell
+node tools/install.mjs                                 # 干跑：只打印将要做的事 + 现状检查
+node tools/install.mjs --apply                         # 真装（第 ① 步先备份 cordis.patch.yml）
+node tools/install.mjs --apply --backups <备份根目录>    # 真装 + 自定义备份根目录（默认 ~/.dsh-plugin-backups）
+node tools/uninstall.mjs                               # 干跑：只打印将要做的事
+node tools/uninstall.mjs --apply                       # 回滚：删 Junction（源码、备份都保留）
+node tools/uninstall.mjs --apply --backup <备份目录>     # 回滚：删 Junction + 从该备份目录还原 cordis.patch.yml
+```
+
+**English:** `tools/install.mjs` automates route A above; all four steps are reversible: **① back up the profile's `cordis.patch.yml` first** → ② lay the source down into `vendor/` → ③ create the Junction under the profile's `node_modules/` → ④ append the `insert` line to the patch. `tools/uninstall.mjs` rolls it back: it removes only the Junction (source and backups are kept); add `--backup <backup dir>` to also restore `cordis.patch.yml` from a backup. **Both scripts are dry-run by default** — they only act when `--apply` is passed.
+
+```powershell
+node tools/install.mjs                                 # dry run: print what it would do + current-state checks
+node tools/install.mjs --apply                         # actually install (step ① backs up cordis.patch.yml first)
+node tools/install.mjs --apply --backups <backup root>  # actually install with a custom backup root (default ~/.dsh-plugin-backups)
+node tools/uninstall.mjs                               # dry run: print what it would do
+node tools/uninstall.mjs --apply                       # roll back: remove the Junction (source and backups kept)
+node tools/uninstall.mjs --apply --backup <backup dir>  # roll back: remove the Junction + restore the patch from that backup
+```
+
 ## 配置项 / Configuration
 
 | 字段 | 类型 | 默认 | 说明 |
@@ -171,6 +198,16 @@ Example:
 3. 想在**不碰配置**的前提下临时关：把 `config.enabled` 设为 `false`。
    **English:** to switch it off temporarily **without touching the mount configuration**: set `config.enabled` to `false`.
 
+用本仓脚本回滚（**默认干跑**）：
+**English:** Rolling back with this repo's script (**dry-run by default**):
+
+```powershell
+node tools/uninstall.mjs --apply --backup <备份目录>   # 删 Junction + 从该备份目录还原 cordis.patch.yml
+```
+
+（不加 `--backup` 只删 Junction、patch 里的 `insert` 行保留；脚本说明见「装法 / Installation」一节。）
+**English:** (without `--backup` it only removes the Junction and leaves the patch's `insert` line in place; the script is described under *Installation*.)
+
 > 回滚**不需要**清任何数据：投影只是 `sessionProjections` 的一格折叠状态，
 > 键消失后宿主读作「能力缺失」，不会留下垃圾；已注入的历史消息本来就在会话日志里，
 > 那是只读事实、也不影响后续（本插件关掉后不再产生新的 `source.kind === 'time-inject'` 消息）。
@@ -202,8 +239,8 @@ node test/harness.mjs      # 宿主桩：真跑 apply() 与 handler
 | `cordis.patch.yml` | bundle patch：一条 `insert` 把插件行挂进 loader 树 |
 | `test/selftest.mjs` | 纯函数自测（进 `npm test`） |
 | `test/harness.mjs` | 宿主桩 harness（不进 `npm test`，它依赖 `module.registerHooks`） |
-| `tools/install.mjs` | 装机辅助：铺源码 + 建 Junction + 追加 patch 行（**默认干跑**、幂等、只增不删） |
-| `tools/uninstall.mjs` | 回滚辅助（默认干跑；只删 Junction，源码与备份保留） |
+| `tools/install.mjs` | 装机辅助：先备份 profile patch + 铺源码 + 建 Junction + 追加 patch 行（**默认干跑**、幂等、只增不删） |
+| `tools/uninstall.mjs` | 回滚辅助（默认干跑；只删 Junction，源码与备份保留；加 `--backup <备份目录>` 才还原 patch） |
 | `tools/scan-session.mjs` | 诊断：读多帧 zstd 会话日志，统计事件类型与注入来源（`source.kind` 分布） |
 
 **English:**
@@ -215,9 +252,29 @@ node test/harness.mjs      # 宿主桩：真跑 apply() 与 handler
 | `cordis.patch.yml` | bundle patch: a single `insert` hooks the plugin line into the loader tree |
 | `test/selftest.mjs` | pure-function self-test (part of `npm test`) |
 | `test/harness.mjs` | host-stub harness (not part of `npm test`; it depends on `module.registerHooks`) |
-| `tools/install.mjs` | install helper: lay down the source + create the Junction + append the patch line (**dry-run by default**, idempotent, add-only) |
-| `tools/uninstall.mjs` | rollback helper (dry-run by default; removes only the Junction, source and backups are kept) |
+| `tools/install.mjs` | install helper: back up the profile patch first + lay down the source + create the Junction + append the patch line (**dry-run by default**, idempotent, add-only) |
+| `tools/uninstall.mjs` | rollback helper (dry-run by default; removes only the Junction, source and backups are kept; add `--backup <backup dir>` to also restore the patch) |
 | `tools/scan-session.mjs` | diagnostics: read multi-frame zstd session logs and tally event types and injection sources (`source.kind` distribution) |
+
+## 权限与依赖 / Permissions & Dependencies
+
+- **文件 / Files**：插件运行时只读宿主给的会话事件与投影状态，自己不直接读写文件。`tools/install.mjs --apply` 会写 profile 的 `vendor/dsh-time-inject-src/`、在 profile 的 `node_modules/` 建一个 Junction、并追加 profile 的 `cordis.patch.yml`（第 ① 步先把该文件备份到 `~/.dsh-plugin-backups/<时间戳>/`）；`tools/uninstall.mjs --apply` 只删那个 Junction，加 `--backup <目录>` 才还原 `cordis.patch.yml`（还原前把当前文件另存 `.before-restore`）。两个脚本**不带 `--apply` 时不写任何文件**。
+- **网络 / Network**：**未发现**任何网络访问 —— 插件与脚本都不发起请求（无 HTTP 客户端、无遥测）。
+- **命令 / Commands**：不调用外部命令，不需要管理员 / root（Windows 上建 Junction 也无需提权）。
+- **凭据 / Credentials**：**未发现**读取或写入任何凭据（无 token、无密钥、无账号配置）。
+- **生命周期脚本 / Lifecycle scripts**：**无** —— `package.json` 里没有 `preinstall` / `install` / `postinstall` 等钩子。
+- **运行时依赖 / Runtime dependencies**：`schemastery` 声明为 `peerDependencies`（由 DSH profile 提供，本包不自带）；宿主侧 `@deepseek-ai/dsh-llm` 由 DSH 提供。自测不依赖任何外部包。
+- **已知风险 / Known risks**：`tools/uninstall.mjs --apply` 会**删除** profile 里指向本插件源码目录的 Junction（删除前已在代码里就地断言目标必须落在 profile 的 `node_modules/` 之下、且不等于根自身）；`tools/install.mjs --apply` 会**覆盖** `vendor/dsh-time-inject-src/` 里的旧源码（原 patch 已先备份）。
+
+**English:**
+
+- **Files:** at runtime the plugin only reads the session events and projection state the host hands it; it does not read or write files itself. `tools/install.mjs --apply` writes the profile's `vendor/dsh-time-inject-src/`, creates one Junction under the profile's `node_modules/`, and appends to the profile's `cordis.patch.yml` (step ① backs that file up to `~/.dsh-plugin-backups/<timestamp>/` first); `tools/uninstall.mjs --apply` removes only that Junction, and only with `--backup <dir>` restores `cordis.patch.yml` (saving the current file as `.before-restore` first). **Without `--apply` neither script writes anything at all.**
+- **Network:** **no** network access found — neither the plugin nor the scripts issue requests (no HTTP client, no telemetry).
+- **Commands:** no external commands are invoked and no administrator/root is needed (creating a Junction on Windows needs no elevation either).
+- **Credentials:** **none found** being read or written (no tokens, keys or account configuration).
+- **Lifecycle scripts:** **none** — `package.json` defines no `preinstall` / `install` / `postinstall` hooks.
+- **Runtime dependencies:** `schemastery` is declared under `peerDependencies` (provided by the DSH profile, not bundled here); the host-side `@deepseek-ai/dsh-llm` is provided by DSH. The self-tests need no external packages.
+- **Known risks:** `tools/uninstall.mjs --apply` **deletes** the Junction in the profile that points at this plugin's source directory (before deleting, the code asserts in place that the target lies under the profile's `node_modules/` and is not the root itself); `tools/install.mjs --apply` **overwrites** old sources in `vendor/dsh-time-inject-src/` (the original patch has already been backed up).
 
 ## 许可 / License
 

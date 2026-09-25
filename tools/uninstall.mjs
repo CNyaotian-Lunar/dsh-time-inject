@@ -7,7 +7,7 @@
  *   node tools/uninstall.mjs --apply                          # 删 Junction（源码与备份都保留）
  *   node tools/uninstall.mjs --apply --backup <备份目录>       # 额外从备份还原 cordis.patch.yml
  *
- * 安全约束（铁律④）：
+ * 安全约束：
  *   · 只删 **Junction**，且必须确认它指向 profiles\web\vendor\dsh-time-inject-src
  *   · 不删 vendor 源码目录、不删备份
  *   · 还原 patch 前先把当前 patch 另存一份到同一备份目录（.before-restore）

@@ -11,9 +11,9 @@
  *                 于是能在**没有 DSH 的情况下** import 真正的 `lib/index.mjs`，
  *                 用假 ctx / 假 payload 把 7 条 🩸 硬要求逐条跑出来。
  *
- * ⚠️ 诚实边界：schemastery / dsh-llm 是**我写的桩**，所以这里验的是「插件自己的逻辑」，
- *    不是那两个包的真实语义。真 schemastery 的 Config 行为另有一份实测记录
- *    （见 notes/impl-notes.md 的「真·schemastery 实测」一节）。
+ * ⚠️ 诚实边界：schemastery / dsh-llm 是**本 harness 自带的桩**，所以这里验的是「插件自己的逻辑」，
+ *    不是那两个包的真实语义。真 schemastery 的 Config 行为需在真实 profile 里另行实测，
+ *    本 harness 验的是桩语义。
  */
 import { registerHooks } from 'node:module'
 import { dirname, join } from 'node:path'
