@@ -1,6 +1,6 @@
 # dsh-time-inject
 
-![架构](docs/architecture.svg)
+![架构](docs/architecture.png)
 
 > ⚠️ **非官方插件** —— 社区作品，与 DeepSeek 官方无关。官方同类包是 `@deepseek-ai/dsh-time-context`，
 > 本插件是它的**中文单行**变体（差异见下）。
