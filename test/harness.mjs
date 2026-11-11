@@ -160,7 +160,7 @@ const LINE_RE = /^\[时钟\] \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{2}:\d{2}
 // ═════════════════════════ 1. 装配 ═════════════════════════
 {
   const { ctx, registrations, listeners } = makeHost()
-  plugin.apply(ctx, undefined)
+  await plugin.apply(ctx, undefined)
   is('1.1 name = time-inject', plugin.name, 'time-inject')
   is('1.2 SOURCE_KIND = time-inject（不是官方 time-context）', plugin.SOURCE_KIND, 'time-inject')
   is('1.3 inject 声明了 agents + sessionProjections', plugin.inject.join(','), 'agents,sessionProjections')
@@ -178,7 +178,7 @@ const LINE_RE = /^\[时钟\] \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{2}:\d{2}
 // ═════════════════════════ 2. 正常轮：注入一条读数 ═════════════════════════
 {
   const host = makeHost()
-  plugin.apply(host.ctx, {})
+  await plugin.apply(host.ctx, {})
   const handler = host.listeners[0].handler
   const session = { id: 's-normal' }
   const now = Date.now()
@@ -210,7 +210,7 @@ const LINE_RE = /^\[时钟\] \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{2}:\d{2}
 // ═════════════════════════ 3. 🩸 空轮保护 ═════════════════════════
 {
   const host = makeHost()
-  plugin.apply(host.ctx, {})
+  await plugin.apply(host.ctx, {})
   const handler = host.listeners[0].handler
   const session = { id: 's-empty' }
   const decision = { kind: 'enter', messages: [] }
@@ -223,7 +223,7 @@ const LINE_RE = /^\[时钟\] \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{2}:\d{2}
 // ═════════════════════════ 4. 触发时机：只有 step === 1 ═════════════════════════
 {
   const host = makeHost()
-  plugin.apply(host.ctx, {})
+  await plugin.apply(host.ctx, {})
   const handler = host.listeners[0].handler
   const session = { id: 's-step2' }
   const decision = { kind: 'enter', messages: [{ role: 'user', id: 'u1' }] }
@@ -238,7 +238,7 @@ const LINE_RE = /^\[时钟\] \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{2}:\d{2}
 // ═════════════════════════ 5. reject / aborted / 无 session ═════════════════════════
 {
   const host = makeHost()
-  plugin.apply(host.ctx, {})
+  await plugin.apply(host.ctx, {})
   const handler = host.listeners[0].handler
   const session = { id: 's-skip' }
   const rejected = { kind: 'reject' }
@@ -261,19 +261,19 @@ const LINE_RE = /^\[时钟\] \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{2}:\d{2}
 // ═════════════════════════ 6. 开关 ═════════════════════════
 {
   const off = makeHost()
-  plugin.apply(off.ctx, { enabled: false })
+  await plugin.apply(off.ctx, { enabled: false })
   const decision = { kind: 'enter', messages: [{ role: 'user', id: 'u1' }] }
   const { result } = await drive(off.listeners[0].handler, { agent: { session: { id: 's' } }, step: 1, turn: 1, signal: { aborted: false } }, async () => decision)
   is('6.1 enabled=false 不注入', result, decision)
 
   const subs = makeHost()
-  plugin.apply(subs.ctx, { includeSubagents: false })
+  await plugin.apply(subs.ctx, { includeSubagents: false })
   const subDecision = { kind: 'enter', messages: [{ role: 'user', id: 'u1' }] }
   const { result: sub } = await drive(subs.listeners[0].handler, { agent: { session: { id: 's' }, parentAgent: {} }, step: 1, turn: 1, signal: { aborted: false } }, async () => subDecision)
   is('6.2 includeSubagents=false 时子代理不注入', sub, subDecision)
 
   const subsOn = makeHost()
-  plugin.apply(subsOn.ctx, {})
+  await plugin.apply(subsOn.ctx, {})
   const { result: onSub } = await drive(subsOn.listeners[0].handler, { agent: { session: { id: 's' }, parentAgent: {} }, step: 1, turn: 1, signal: { aborted: false } }, async () => ({ kind: 'enter', messages: [{ role: 'user', id: 'u1' }] }))
   is('6.3 默认给子代理也注入', onSub.messages.length, 2)
 }
@@ -281,7 +281,7 @@ const LINE_RE = /^\[时钟\] \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{2}:\d{2}
 // ═════════════════════════ 7. 🩸 异常语义 ═════════════════════════
 {
   const host = makeHost()
-  plugin.apply(host.ctx, {})
+  await plugin.apply(host.ctx, {})
   const handler = host.listeners[0].handler
   const session = { id: 's-throw' }
 
@@ -304,7 +304,7 @@ const LINE_RE = /^\[时钟\] \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{2}:\d{2}
 
   // 7c stateOf 抛错 → 单独兜住，仍注入（基线未知）
   const host2 = makeHost()
-  plugin.apply(host2.ctx, {})
+  await plugin.apply(host2.ctx, {})
   const sessionX = { id: 's-explode' }
   host2.cells.set(sessionX, { explode: true })
   const { result: r3 } = await drive(host2.listeners[0].handler, { agent: { session: sessionX }, step: 1, turn: 1, signal: { aborted: false } }, async () => ({ kind: 'enter', messages: [{ role: 'user', id: 'u1' }] }))
@@ -324,7 +324,7 @@ const LINE_RE = /^\[时钟\] \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{2}:\d{2}
       return () => {}
     },
   }
-  plugin.apply(ctx, {})
+  await plugin.apply(ctx, {})
   is('8.1 投影不可用时不抛错（只告警）', warns.length, 1)
   ok('8.2 告警说明了降级', warns[0].includes('sessionProjections 不可用'), `实际: ${warns[0]}`)
   const { result } = await drive(listeners[0].handler, { agent: { session: { id: 's' } }, step: 1, turn: 1, signal: { aborted: false } }, async () => ({ kind: 'enter', messages: [{ role: 'user', id: 'u1' }] }))
@@ -408,7 +408,7 @@ const LINE_RE = /^\[时钟\] \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{2}:\d{2}
   }
   let threw = false
   try {
-    plugin.apply(ctx, {})
+    await plugin.apply(ctx, {})
   } catch {
     threw = true
   }
