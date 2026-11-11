@@ -92,12 +92,15 @@ sessionProjections 折叠（key = timeInject, stateVersion = 1）
    **English:** Copy this repo's source into the profile's `vendor/` and `link:` it into the profile:
 
    ```jsonc
-   // ~/.dsh/profiles/web/package.json
+   // ~/.dsh/profiles/<profile>/package.json
+
+> ⚠️ `<profile>` 是你实际在用的那个：**桌面版是 `desktop`**，旧 web 版是 `web`。写错不会报错，只会静默不生效。
+> **English:** `<profile>` is the one you actually run: **`desktop` on the desktop app**, `web` on the legacy web build. Getting it wrong fails silently.
    "dependencies": { "dsh-time-inject": "link:vendor/dsh-time-inject-src" }
    ```
 
-2. 在 `~/.dsh/profiles/web/cordis.patch.yml` 追加：
-   **English:** Append to `~/.dsh/profiles/web/cordis.patch.yml`:
+2. 在 `~/.dsh/profiles/<profile>/cordis.patch.yml` 追加：
+   **English:** Append to `~/.dsh/profiles/<profile>/cordis.patch.yml`:
 
    ```yaml
    - insert:
@@ -110,11 +113,11 @@ sessionProjections 折叠（key = timeInject, stateVersion = 1）
 
    > 💡 如果你想**跳过 `pnpm install`**（例如你的 profile 里也有 `file:vendor/*.tgz` 型依赖，
    > 而 install 会重新解包它们），可以手动建 Junction：
-   > `mklink /J ~/.dsh/profiles/web/node_modules/dsh-time-inject <源码目录>`（Windows），
+   > `mklink /J ~/.dsh/profiles/<profile>/node_modules/dsh-time-inject <源码目录>`（Windows），
    > 效果与 `link:` 相同，且不改动任何锁文件。本仓的 `tools/install.mjs` 就是这条路线。
    >
    > 💡 **English:** If you want to **skip `pnpm install`** (for example your profile also has `file:vendor/*.tgz` dependencies and install would re-unpack them), you can create the Junction by hand:
-   > `mklink /J ~/.dsh/profiles/web/node_modules/dsh-time-inject <source dir>` (Windows).
+   > `mklink /J ~/.dsh/profiles/<profile>/node_modules/dsh-time-inject <source dir>` (Windows).
    > The effect is identical to `link:`, and no lockfile is touched. This repo's `tools/install.mjs` takes exactly this route.
 
 **路线 B（当 bundle 包挂）——进 `bundles` 列表**
@@ -122,9 +125,9 @@ sessionProjections 折叠（key = timeInject, stateVersion = 1）
 
 1. 同 A 的 `link:` 依赖；
    **English:** Same `link:` dependency as route A;
-2. `~/.dsh/profiles/web/package.json` 的 `dsh.profile.bundles` 里加 `"dsh-time-inject"`
+2. `~/.dsh/profiles/<profile>/package.json` 的 `dsh.profile.bundles` 里加 `"dsh-time-inject"`
    （本包的 `dsh.bundle.patch` 会让它自己的 `cordis.patch.yml` 被当成一层 patch）；
-   **English:** add `"dsh-time-inject"` to `dsh.profile.bundles` in `~/.dsh/profiles/web/package.json` (this package's `dsh.bundle.patch` makes its own `cordis.patch.yml` count as one patch layer);
+   **English:** add `"dsh-time-inject"` to `dsh.profile.bundles` in `~/.dsh/profiles/<profile>/package.json` (this package's `dsh.bundle.patch` makes its own `cordis.patch.yml` count as one patch layer);
 3. `pnpm install` + 重启 `dsh web`。
    **English:** `pnpm install` + restart `dsh web`.
 
